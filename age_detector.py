@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.cross_validation import cross_val_score
+from sklearn.cross_validation import KFold, cross_val_score
 
 from nltk.stem import SnowballStemmer
 
@@ -19,10 +19,9 @@ from nltk.stem import SnowballStemmer
 class AgeDetector:
 
     def __init__(self):
-        self.vec = CountVectorizer(ngram_range=(1, 2), tokenizer=nltk.word_tokenize, binary=True)
-        self.vec1 = TfidfVectorizer(ngram_range=(1, 2), tokenizer=nltk.word_tokenize, binary=True)
-        # self.model = LogisticRegression(class_weight='auto')
-        self.model = SGDClassifier(loss='modified_huber', n_iter=100, class_weight='auto')
+        self.vec = TfidfVectorizer(ngram_range=(1, 2), tokenizer=nltk.word_tokenize)
+        self.model = LogisticRegression(class_weight='auto')
+        # self.model = SGDClassifier(loss='modified_huber', n_iter=100, class_weight='auto')
         # self.model = LinearSVC(C=2.0, class_weight='auto')
 
     def extract(self, data):
@@ -52,15 +51,30 @@ class AgeDetector:
         result = self.model.predict(X)
         return result
 
-if __name__ == '__main__':
-    with open('Train.txt.json', encoding='utf-8') as data_file:
-        data = json.load(data_file)
-    with open('Train.lab.json', encoding='utf-8') as res_file:
-        results = json.load(res_file)
-    dec = AgeDetector()
+# if __name__ == '__main__':
+#     with open('Train.txt.json', encoding='utf-8') as data_file:
+#         data = json.load(data_file)
+#     with open('Train.lab.json', encoding='utf-8') as res_file:
+#         results = json.load(res_file)
+#     dec = AgeDetector()
+#
+#     # info = dec.extract1(data, results)
+#     dec.train(data, results)
+#     print(results == dec.classify(data))
 
-    dec.train(data, results)
-    print(results == dec.classify(data))
+    # lens = list(len(x) for x in data)
+    #
+    # kf = KFold(len(data))
+    # for tr_ind, test_ind in kf:
+    #     X_tr, X_test = info[0][tr_ind], info[0][test_ind]
+    #     Y_tr, Y_test = info[1][tr_ind], info[1][test_ind]
+    #     dec.model = SGDClassifier(loss='modified_huber', n_iter=100, class_weight='auto')
+    #     dec.vec = TfidfVectorizer(ngram_range=(1, 2), tokenizer=nltk.word_tokenize, binary=True)
+    #     X = dec.vec.fit_transform(X_tr)
+    #     dec.model.fit(X, Y_tr)
+    #     X = dec.vec.transform(X_test)
+    #     res = dec.model.predict(X)
+
 
 #     X = dec.vec.fit_transform(dec.extract(data))
 #     print(cross_val_score(dec.model, X, results, cv=3, n_jobs=-1).mean())
